@@ -3,36 +3,33 @@ import 'package:flutter/material.dart';
 
 class OnboardingNavigationBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   final int currentPage;
+  final int pageCount;
   final Function onSkip;
-  final int totalPage;
   final Function? onFinish;
   final Widget? finishButton;
   final Widget? skipTextButton;
-  final Color headerBackgroundColor;
   final Widget? leading;
   final Widget? middle;
-  final Function? skipFunctionOverride;
+  final Color headerBackgroundColor;
 
-  OnboardingNavigationBar({
+  const OnboardingNavigationBar({
+    Key? key,
     required this.currentPage,
+    required this.pageCount,
     required this.onSkip,
-    required this.headerBackgroundColor,
-    required this.totalPage,
     this.onFinish,
     this.finishButton,
     this.skipTextButton,
     this.leading,
     this.middle,
-    this.skipFunctionOverride,
-  });
+    required this.headerBackgroundColor,
+  }) : super(key: key);
 
   @override
-  Size get preferredSize => Size.fromHeight(40);
+  Size get preferredSize => const Size.fromHeight(40);
 
   @override
-  bool shouldFullyObstruct(BuildContext context) {
-    return true;
-  }
+  bool shouldFullyObstruct(BuildContext context) => true;
 
   @override
   Widget build(BuildContext context) {
@@ -40,34 +37,28 @@ class OnboardingNavigationBar extends StatelessWidget implements ObstructingPref
       automaticallyImplyLeading: false,
       leading: leading,
       middle: middle,
-      trailing: currentPage == totalPage - 1
+      trailing: currentPage == pageCount - 1
           ? finishButton == null
-              ? SizedBox.shrink()
+              ? const SizedBox.shrink()
               : Container(
-                  color: Colors.transparent,
                   alignment: Alignment.centerRight,
+                  color: Colors.transparent,
                   child: TextButton(
                     onPressed: () => onFinish?.call(),
                     child: finishButton!,
                   ),
                 )
           : skipTextButton == null
-              ? SizedBox.shrink()
+              ? const SizedBox.shrink()
               : Container(
-                  color: Colors.transparent,
                   alignment: Alignment.centerRight,
+                  color: Colors.transparent,
                   child: TextButton(
-                    onPressed: () {
-                      if (skipFunctionOverride == null) {
-                        onSkip();
-                      } else {
-                        skipFunctionOverride!();
-                      }
-                    },
+                    onPressed: () => onSkip.call(),
                     child: skipTextButton!,
                   ),
                 ),
-      border: Border(
+      border: const Border(
         bottom: BorderSide(color: Colors.transparent),
       ),
       backgroundColor: headerBackgroundColor,
