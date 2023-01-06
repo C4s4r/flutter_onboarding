@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_onboarding/page_offset_provider.dart';
 
 class Background extends StatelessWidget {
   final List<Widget> backgrounds;
@@ -36,6 +35,41 @@ class Background extends StatelessWidget {
           ),
         child,
       ],
+    );
+  }
+}
+
+class BackgroundImage extends StatelessWidget {
+  final int id;
+  final Widget background;
+  final double imageVerticalOffset;
+  final double speed;
+  final double imageHorizontalOffset;
+
+  const BackgroundImage({
+    Key? key,
+    required this.id,
+    required this.speed,
+    required this.background,
+    required this.imageVerticalOffset,
+    required this.imageHorizontalOffset,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<PageOffsetNotifier>(
+      builder: (context, notifier, child) {
+        return Stack(children: [
+          Positioned(
+            top: imageVerticalOffset,
+            left: MediaQuery.of(context).size.width * ((id - 1) * speed) -
+                speed * notifier.offset +
+                imageHorizontalOffset,
+            child: child!,
+          ),
+        ]);
+      },
+      child: Container(child: background),
     );
   }
 }
@@ -212,37 +246,18 @@ class FinalButton extends StatelessWidget {
   }
 }
 
-class BackgroundImage extends StatelessWidget {
-  final int id;
-  final Widget background;
-  final double imageVerticalOffset;
-  final double speed;
-  final double imageHorizontalOffset;
+class PageOffsetNotifier with ChangeNotifier {
+  double _offset = 0;
+  double _page = 0;
 
-  const BackgroundImage({
-    Key? key,
-    required this.id,
-    required this.speed,
-    required this.background,
-    required this.imageVerticalOffset,
-    required this.imageHorizontalOffset,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<PageOffsetNotifier>(
-      builder: (context, notifier, child) {
-        return Stack(children: [
-          Positioned(
-            top: imageVerticalOffset,
-            left: MediaQuery.of(context).size.width * ((id - 1) * speed) -
-                speed * notifier.offset +
-                imageHorizontalOffset,
-            child: child!,
-          ),
-        ]);
-      },
-      child: Container(child: background),
-    );
+  PageOffsetNotifier(PageController pageController) {
+    pageController.addListener(() {
+      _offset = pageController.offset;
+      _page = pageController.page ?? 0;
+      notifyListeners();
+    });
   }
+
+  double get offset => _offset;
+  double get page => _page;
 }

@@ -1,35 +1,33 @@
 library flutter_onboarding_slider;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_onboarding/navigation_bar.dart';
-import 'package:flutter_onboarding/page_offset_provider.dart';
 
 import 'background.dart';
 
 export 'background.dart';
 
+/// Adds an onboarding page with a parallex effect that can hold an illustration
+/// and some content. An indicator shows the progress of the onboarding.
+/// The last page has a call-to-action button.
 class OnBoardingSlider extends StatefulWidget {
-  /// Number of total pages
+  /// Total number of pages
   final int pageCount;
 
-  /// NavigationBar color
+  /// Color of the NavigationBar
   final Color headerBackgroundColor;
 
   /// List of widgets to be shown in the background.
-  /// Can be any picture or illustration.
-  final List<Widget> background;
+  /// Can be any picture or illustration, for example.
+  final List<Widget> heroWidgets;
 
-  /// The animation speed for the [background]
+  /// The animation speed for the [heroWidgets]
   final double speed;
 
   /// Background color of the screen (apart from the NavigationBar)
   final Color? pageBackgroundColor;
-
-  /// Background gradient of the screen (apart from the NavigationBar)
-  final Gradient? pageBackgroundGradient;
 
   /// Callback to be executed when clicked on the [finishButton]
   final Function? onFinish;
@@ -40,7 +38,7 @@ class OnBoardingSlider extends StatefulWidget {
   /// NavigationBar trailing widget when not on last screen
   final Widget? skipTextButton;
 
-  /// The main content ont the screen displayed above [background]
+  /// The main content ont the screen displayed above [heroWidgets]
   final List<Widget> pageBodies;
 
   /// Callback to be executed when clicked on the last pages bottom button
@@ -64,10 +62,10 @@ class OnBoardingSlider extends StatefulWidget {
   /// Toggle bottom page controller visibilty
   final bool addController;
 
-  /// Defines the vertical offset of the [background]
+  /// Defines the vertical offset of the [heroWidgets]
   final double imageVerticalOffset;
 
-  /// Defines the horizontal offset of the [background]
+  /// Defines the horizontal offset of the [heroWidgets]
   final double imageHorizontalOffset;
 
   /// Leading widget of the navigationBar
@@ -94,16 +92,15 @@ class OnBoardingSlider extends StatefulWidget {
   const OnBoardingSlider({
     Key? key,
     required this.pageCount,
-    required this.headerBackgroundColor,
-    required this.background,
-    required this.speed,
+    this.headerBackgroundColor = Colors.white,
+    required this.heroWidgets,
+    this.speed = 1.8,
     required this.pageBodies,
     this.onFinish,
     this.trailingFunction,
     this.trailing,
     this.skipTextButton,
     this.pageBackgroundColor,
-    this.pageBackgroundGradient,
     this.finishButtonColor,
     this.finishButtonText,
     this.controllerColor,
@@ -172,55 +169,52 @@ class _OnBoardingSliderState extends State<OnBoardingSlider> {
                 hasSkip: widget.hasSkip,
               )
             : const SizedBox.shrink(),
-        body: CupertinoPageScaffold(
-          navigationBar: OnboardingNavigationBar(
-            leading: widget.leading,
-            middle: widget.middle,
-            pageCount: widget.pageCount,
-            currentPage: _currentPage,
-            onSkip: _skip,
-            headerBackgroundColor: widget.headerBackgroundColor,
-            onFinish: widget.trailingFunction,
-            finishButton: widget.trailing,
-            skipTextButton: widget.skipTextButton,
-          ),
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              gradient: widget.pageBackgroundGradient,
-              color: widget.pageBackgroundColor,
-            ),
-            child: SafeArea(
-              child: Background(
-                imageHorizontalOffset: widget.imageHorizontalOffset,
-                imageVerticalOffset: widget.imageVerticalOffset,
-                backgrounds: widget.background,
-                speed: widget.speed,
+        body: SafeArea(
+          child: Column(
+            children: [
+              OnboardingNavigationBar(
+                leading: widget.leading,
+                middle: widget.middle,
                 pageCount: widget.pageCount,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: BackgroundBody(
-                          controller: _pageController,
-                          function: slideNext,
-                          pageCount: widget.pageCount,
-                          bodies: widget.pageBodies,
-                        ),
-                      ),
-                      widget.addController
-                          ? BackgroundController(
-                              indicatorPosition: widget.indicatorPosition,
-                              indicatorAbove: widget.indicatorAbove,
-                              currentPage: _currentPage,
-                              pageCount: widget.pageCount,
-                              controllerColor: widget.controllerColor,
-                            )
-                          : const SizedBox.shrink(),
-                    ]),
+                currentPage: _currentPage,
+                onSkip: _skip,
+                headerBackgroundColor: widget.headerBackgroundColor,
+                onFinish: widget.trailingFunction,
+                finishButton: widget.trailing,
+                skipTextButton: widget.skipTextButton,
               ),
-            ),
+              Expanded(
+                child: Background(
+                  imageHorizontalOffset: widget.imageHorizontalOffset,
+                  imageVerticalOffset: widget.imageVerticalOffset,
+                  backgrounds: widget.heroWidgets,
+                  speed: widget.speed,
+                  pageCount: widget.pageCount,
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: BackgroundBody(
+                            controller: _pageController,
+                            function: slideNext,
+                            pageCount: widget.pageCount,
+                            bodies: widget.pageBodies,
+                          ),
+                        ),
+                        widget.addController
+                            ? BackgroundController(
+                                indicatorPosition: widget.indicatorPosition,
+                                indicatorAbove: widget.indicatorAbove,
+                                currentPage: _currentPage,
+                                pageCount: widget.pageCount,
+                                controllerColor: widget.controllerColor,
+                              )
+                            : const SizedBox.shrink(),
+                      ]),
+                ),
+              ),
+            ],
           ),
         ),
       ),
