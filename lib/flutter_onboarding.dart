@@ -1,222 +1,137 @@
-library flutter_onboarding_slider;
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:flutter_onboarding/navigation_bar.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import 'background.dart';
+class OnboardingSlider extends StatefulWidget {
+  final List<Widget> items;
 
-export 'background.dart';
+  final Widget donePage;
 
-/// Adds an onboarding page with a parallex effect that can hold an illustration
-/// and some content. An indicator shows the progress of the onboarding.
-/// The last page has a call-to-action button.
-class OnBoardingSlider extends StatefulWidget {
-  /// Total number of pages
-  final int pageCount;
+  final Widget? nextButtonIcon;
 
-  /// Color of the NavigationBar
-  final Color headerBackgroundColor;
+  final String doneButtonText;
 
-  /// List of widgets to be shown in the background.
-  /// Can be any picture or illustration, for example.
-  final List<Widget> heroWidgets;
+  final Color pageIndicatorColor;
 
-  /// The animation speed for the [heroWidgets]
-  final double speed;
+  final Color inactivePageIndicatorColor;
 
-  /// Background color of the screen (apart from the NavigationBar)
-  final Color? pageBackgroundColor;
+  final Color? backgroundColor;
 
-  /// Callback to be executed when clicked on the [finishButton]
-  final Function? onFinish;
+  final Color? buttonColor;
 
-  /// NavigationBar trailing widget when on last screen
-  final Widget? trailing;
+  final TextStyle? buttonTextStyle;
 
-  /// NavigationBar trailing widget when not on last screen
-  final Widget? skipTextButton;
-
-  /// The main content ont the screen displayed above [heroWidgets]
-  final List<Widget> pageBodies;
-
-  /// Callback to be executed when clicked on the last pages bottom button
-  final Function? trailingFunction;
-
-  /// Color of the bottom button on the last page
-  final Color? finishButtonColor;
-
-  /// Text inside last pages bottom button
-  final String? finishButtonText;
-
-  /// Text style for text inside last pages bottom button
-  final TextStyle finishButtonTextStyle;
-
-  /// Color of the bottom page indicators
-  final Color? controllerColor;
-
-  /// Toggle bottom button
-  final bool addButton;
-
-  /// Toggle bottom page controller visibilty
-  final bool addController;
-
-  /// Defines the vertical offset of the [heroWidgets]
-  final double imageVerticalOffset;
-
-  /// Defines the horizontal offset of the [heroWidgets]
-  final double imageHorizontalOffset;
-
-  /// Leading widget of the navigationBar
-  final Widget? leading;
-
-  /// Middle widget of the navigationBar
-  final Widget? middle;
-
-  /// Whether to show the FloatingActionButton or not
-  final bool hasFloatingButton;
-
-  /// Whether to show the skip button at the bottom or not
-  final bool hasSkip;
-
-  /// Icon inside the skip button
-  final Icon skipIcon;
-
-  /// Wether the indicator should be located on top of the screen
-  final bool indicatorAbove;
-
-  /// Distance of indicators from bottom
-  final double indicatorPosition;
-
-  const OnBoardingSlider({
-    Key? key,
-    required this.pageCount,
-    this.headerBackgroundColor = Colors.white,
-    required this.heroWidgets,
-    this.speed = 1.8,
-    required this.pageBodies,
-    this.onFinish,
-    this.trailingFunction,
-    this.trailing,
-    this.skipTextButton,
-    this.pageBackgroundColor,
-    this.finishButtonColor,
-    this.finishButtonText,
-    this.controllerColor,
-    this.addController = true,
-    this.addButton = true,
-    this.imageVerticalOffset = 0,
-    this.imageHorizontalOffset = 0,
-    this.leading,
-    this.middle,
-    this.hasFloatingButton = true,
-    this.hasSkip = true,
-    this.finishButtonTextStyle = const TextStyle(
-      fontSize: 20,
-      color: Colors.white,
-    ),
-    this.skipIcon = const Icon(
-      Icons.arrow_forward,
-      color: Colors.white,
-    ),
-    this.indicatorAbove = false,
-    this.indicatorPosition = 90,
-  }) : super(key: key);
+  const OnboardingSlider({
+    super.key,
+    required this.items,
+    required this.donePage,
+    this.nextButtonIcon,
+    this.doneButtonText = 'Finish',
+    this.pageIndicatorColor = Colors.black,
+    this.inactivePageIndicatorColor = const Color.fromARGB(255, 228, 228, 228),
+    this.backgroundColor = Colors.white,
+    this.buttonColor = Colors.black,
+    this.buttonTextStyle,
+  });
 
   @override
-  _OnBoardingSliderState createState() => _OnBoardingSliderState();
+  State<OnboardingSlider> createState() => _OnboardingSliderState();
 }
 
-class _OnBoardingSliderState extends State<OnBoardingSlider> {
-  final PageController _pageController = PageController(initialPage: 0);
+class _OnboardingSliderState extends State<OnboardingSlider> {
+  late PageController pageController;
+  int currentPage = 0;
 
-  int _currentPage = 0;
-
-  /// Slides to the next page
-  void slideNext(int page) {
-    setState(() {
-      _currentPage = page;
-    });
+  void onboardingDone() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 450),
+        transitionsBuilder: ((context, animation, secondaryAnimation, child) {
+          animation = CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        }),
+        pageBuilder: (context, animation, secondaryAnimation) => widget.donePage,
+      ),
+    );
   }
 
-  /// Skips to the last page
-  void _skip() {
-    _pageController.jumpToPage(widget.pageCount - 1);
+  @override
+  void initState() {
+    super.initState();
 
-    setState(() {
-      _currentPage = widget.pageCount - 1;
-    });
+    pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (BuildContext context) => PageOffsetNotifier(_pageController),
-      child: Scaffold(
-        backgroundColor: widget.pageBackgroundColor,
-        floatingActionButton: widget.hasFloatingButton
-            ? FinalButton(
-                buttonTextStyle: widget.finishButtonTextStyle,
-                skipIcon: widget.skipIcon,
-                addButton: widget.addButton,
-                currentPage: _currentPage,
-                pageController: _pageController,
-                pageCount: widget.pageCount,
-                onPageFinish: widget.onFinish,
-                buttonBackgroundColor: widget.finishButtonColor,
-                buttonText: widget.finishButtonText,
-                hasSkip: widget.hasSkip,
+    return Scaffold(
+      backgroundColor: widget.backgroundColor,
+      floatingActionButton: AnimatedContainer(
+        padding: currentPage == widget.items.length - 1 ? const EdgeInsets.symmetric(horizontal: 30) : null,
+        width: currentPage == widget.items.length - 1 ? MediaQuery.of(context).size.width - 30 : 60,
+        duration: const Duration(milliseconds: 100),
+        child: currentPage != widget.items.length - 1
+            ? FloatingActionButton(
+                onPressed: () =>
+                    pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                backgroundColor: widget.buttonColor,
+                child: widget.nextButtonIcon,
               )
-            : const SizedBox.shrink(),
-        body: SafeArea(
-          child: Column(
-            children: [
-              OnboardingNavigationBar(
-                leading: widget.leading,
-                middle: widget.middle,
-                pageCount: widget.pageCount,
-                currentPage: _currentPage,
-                onSkip: _skip,
-                headerBackgroundColor: widget.headerBackgroundColor,
-                onFinish: widget.trailingFunction,
-                finishButton: widget.trailing,
-                skipTextButton: widget.skipTextButton,
+            : FloatingActionButton.extended(
+                onPressed: onboardingDone,
+                label: Text(widget.doneButtonText, style: widget.buttonTextStyle),
+                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                backgroundColor: widget.buttonColor,
               ),
-              Expanded(
-                child: Background(
-                  imageHorizontalOffset: widget.imageHorizontalOffset,
-                  imageVerticalOffset: widget.imageVerticalOffset,
-                  backgrounds: widget.heroWidgets,
-                  speed: widget.speed,
-                  pageCount: widget.pageCount,
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: BackgroundBody(
-                            controller: _pageController,
-                            function: slideNext,
-                            pageCount: widget.pageCount,
-                            bodies: widget.pageBodies,
-                          ),
-                        ),
-                        widget.addController
-                            ? BackgroundController(
-                                indicatorPosition: widget.indicatorPosition,
-                                indicatorAbove: widget.indicatorAbove,
-                                currentPage: _currentPage,
-                                pageCount: widget.pageCount,
-                                controllerColor: widget.controllerColor,
-                              )
-                            : const SizedBox.shrink(),
-                      ]),
-                ),
-              ),
-            ],
+      ),
+      body: Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          // Page content
+          PageView.builder(
+            controller: pageController,
+            itemCount: widget.items.length,
+            scrollBehavior: const CupertinoScrollBehavior(),
+            onPageChanged: (index) => setState(() => currentPage = index),
+            itemBuilder: (context, index) {
+              return Container(
+                color: widget.backgroundColor,
+                child: widget.items[index],
+              );
+            },
           ),
-        ),
+          // Page indicator
+          Positioned(
+            bottom: 45,
+            child: SmoothPageIndicator(
+              controller: pageController,
+              count: widget.items.length,
+              effect: ExpandingDotsEffect(
+                activeDotColor: widget.pageIndicatorColor,
+                dotColor: widget.inactivePageIndicatorColor,
+                dotWidth: 10,
+                dotHeight: 10,
+                offset: 20,
+                expansionFactor: 4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

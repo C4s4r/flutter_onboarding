@@ -17,51 +17,20 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         useMaterial3: true,
       ),
-      home: OnBoardingSlider(
-        pageCount: 3,
-        imageHorizontalOffset: 30,
-        skipTextButton: Text('Skip'),
-        heroWidgets: [
-          Image.asset('assets/Asset 19@2x.png'),
-          Image.asset('assets/Asset 20@2x.png'),
-          Image.asset('assets/Asset 25@2x.png'),
+      home: const OnboardingSlider(
+        items: [
+          Center(child: Text('Description Text 1')),
+          Center(child: Text('Description Text 2')),
+          Center(child: Text('Description Text 3')),
         ],
-        pageBodies: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              children: const <Widget>[
-                SizedBox(
-                  height: 480,
-                ),
-                Text('Description Text 1'),
-              ],
-            ),
-          ),
-           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              children: const <Widget>[
-                SizedBox(
-                  height: 480,
-                ),
-                Text('Description Text 2'),
-              ],
-            ),
-          ),
-           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
-            child: Column(
-              children: const <Widget>[
-                SizedBox(
-                  height: 480,
-                ),
-                Text('Description Text 3'),
-              ],
-            ),
-          ),
-        ],
+        donePage: Scaffold(backgroundColor: Colors.black),
+        nextButtonIcon: Icon(
+          Icons.arrow_right_alt,
+          color: Colors.white,
+        ),
+        buttonTextStyle: TextStyle(color: Colors.white),
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
