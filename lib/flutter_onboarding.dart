@@ -3,24 +3,41 @@ import 'package:flutter/material.dart';
 
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+/// Displays an onboarding experience with different pages,
+/// a [FloatingActionButton] and a progress indicator.
 class OnboardingSlider extends StatefulWidget {
+  /// The items that should be displayed on the different pages
   final List<Widget> items;
 
+  /// The page that should be navigated to, when the onboarding is done
   final Widget donePage;
 
+  /// The icon that should be displayed inside the [FloatingActionButton],
+  /// unless the active page is the last one
   final Widget? nextButtonIcon;
 
+  /// The text that should be displayed inside the [FloatingActionButton.extended]
+  /// on the last page
   final String doneButtonText;
 
+  /// The active color of the progress indicator
   final Color pageIndicatorColor;
 
+  /// The secondary color of the progress indicator
   final Color inactivePageIndicatorColor;
 
+  /// The page background color
   final Color? backgroundColor;
 
+  /// The button color that is used for both the [FloatingActionButton]
+  /// and the [FloatingActionButton.extended]
   final Color? buttonColor;
 
+  /// The [TextStyle] that is used for the text insiede the
+  /// [FloatingActionButton.extended] on the last page
   final TextStyle? buttonTextStyle;
+
+  final List<int> hideButtonOnPage;
 
   const OnboardingSlider({
     super.key,
@@ -33,15 +50,28 @@ class OnboardingSlider extends StatefulWidget {
     this.backgroundColor = Colors.white,
     this.buttonColor = Colors.black,
     this.buttonTextStyle,
+    this.hideButtonOnPage = const [],
   });
 
   @override
-  State<OnboardingSlider> createState() => _OnboardingSliderState();
+  State<OnboardingSlider> createState() => OnboardingSliderState();
 }
 
-class _OnboardingSliderState extends State<OnboardingSlider> {
+class OnboardingSliderState extends State<OnboardingSlider> {
   late PageController pageController;
   int currentPage = 0;
+
+  /// Can be called from outside in order to navigate the next page
+  /// manually. This can be useful, for example, when there's another
+  /// button despite the FloatingActionButton, that should influence the navigation.
+  ///
+  /// The returned [Future] resolves when the animation completes.
+  Future<void> nextPage() {
+    return pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   void onboardingDone() {
     Navigator.of(context).pushReplacement(
@@ -85,13 +115,17 @@ class _OnboardingSliderState extends State<OnboardingSlider> {
         width: currentPage == widget.items.length - 1 ? MediaQuery.of(context).size.width - 30 : 60,
         duration: const Duration(milliseconds: 100),
         child: currentPage != widget.items.length - 1
-            ? FloatingActionButton(
-                onPressed: () =>
-                    pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
-                backgroundColor: widget.buttonColor,
-                child: widget.nextButtonIcon,
-              )
+            ? !widget.hideButtonOnPage.contains(currentPage)
+                // Show the normal FloatingActionButton
+                ? FloatingActionButton(
+                    onPressed: () =>
+                        pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut),
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                    backgroundColor: widget.buttonColor,
+                    child: widget.nextButtonIcon,
+                  )
+                // Hide the button on this page
+                : const SizedBox.shrink()
             : FloatingActionButton.extended(
                 onPressed: onboardingDone,
                 label: Text(widget.doneButtonText, style: widget.buttonTextStyle),
