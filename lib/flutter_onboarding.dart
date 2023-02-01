@@ -12,6 +12,9 @@ class OnboardingSlider extends StatefulWidget {
   /// The page that should be navigated to, when the onboarding is done
   final Widget donePage;
 
+  /// A function that is executed before navigating to the `donePage` widget
+  final VoidCallback? onDone;
+
   /// The icon that should be displayed inside the [FloatingActionButton],
   /// unless the active page is the last one
   final Widget? nextButtonIcon;
@@ -43,6 +46,7 @@ class OnboardingSlider extends StatefulWidget {
     super.key,
     required this.items,
     required this.donePage,
+    this.onDone,
     this.nextButtonIcon,
     this.doneButtonText = 'Finish',
     this.pageIndicatorColor = Colors.black,
@@ -74,6 +78,8 @@ class OnboardingSliderState extends State<OnboardingSlider> {
   }
 
   void onboardingDone() {
+    widget.onDone?.call();
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 450),
