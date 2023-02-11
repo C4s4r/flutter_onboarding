@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -157,7 +158,7 @@ class OnboardingSliderState extends State<OnboardingSlider> {
           ),
           // Page indicator
           Positioned(
-            bottom: 45,
+            bottom: !Platform.isIOS ? 45 : 90,
             child: SmoothPageIndicator(
               controller: pageController,
               count: widget.items.length,
