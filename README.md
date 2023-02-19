@@ -1,39 +1,55 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Flutter Onboarding
+[![GitHub last commit](https://img.shields.io/github/last-commit/C4s4r/flutter_onboarding?label=last%20updated)](https://github.com/C4s4r/flutter_onboarding/commits/)
+[![GitHub](https://img.shields.io/github/license/C4s4r/flutter_onboarding)](https://opensource.org/licenses/BSD-3-Clause)
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+A package that provides an animated onboarding experience to display different pages. It holds a progress indicator and can be navigated by swipe or a `FloatingActionButton`.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Getting Started
 
-## Features
+As usual, begin by adding the package to your pubspec.yaml file, see [install instruction](https://pub.dev/packages/animated_popup_dialog/install).
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
+Here is a basic setup with the `OnboardingSlider` widget:
 ```dart
-const like = 'sample';
+import 'package:flutter/material.dart';
+import 'package:flutter_onboarding/flutter_onboarding.dart';
+
+class GettingStartedExample extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Onboarding Demo',
+      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
+      home: const OnboardingSlider(
+        items: [
+          Center(child: Text('Description Text 1')),
+          Center(child: Text('Description Text 2')),
+          Center(child: Text('Description Text 3')),
+        ],
+        donePage: Scaffold(backgroundColor: Colors.black),
+        nextButtonIcon: Icon(
+          Icons.arrow_right_alt,
+          color: Colors.white,
+        ),
+        buttonTextStyle: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+}
 ```
 
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## Different properties to set
+You can set the following properties:
+* **`items`**: The items that should be displayed on the different pages
+* **`donePage`**: The page that should be navigated to, when the onboarding is done
+* **`onDone`**: A function that is executed before navigating to the `donePage` widget
+* **`nextButtonIcon`**: The icon that should be displayed inside the `FloatingActionButton`, unless the active page is the last one
+* **`doneButtonText`**: The text that should be displayed inside the `FloatingActionButton.extended` on the last page
+* **`pageIndicatorColor`**: The active color of the progress indicator
+* **`inactivePageIndicatorColor`**: The secondary color of the progress indicator
+* **`backgroundColor`**: The page background color
+* **`buttonColor`**: The button color that is used for both the `FloatingActionButton` and the `FloatingActionButton.extended`
+* **`buttonTextStyle`**: The [TextStyle] that is used for the text insiede the `FloatingActionButton.extended` on the last page
+* **`hideButtonOnPage`**: A list of pages on which the button should be invisible
